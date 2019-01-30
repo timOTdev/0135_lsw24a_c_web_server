@@ -97,12 +97,6 @@ struct cache_entry *dllist_remove_tail(struct cache *cache)
  */
 struct cache *cache_create(int max_size, int hashsize)
 {
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
-    (void)max_size;
-    (void)hashsize;
-    return 0;
 }
 
 void cache_free(struct cache *cache)
@@ -142,7 +136,7 @@ void cache_put(struct cache *cache, char *path, char *content_type, void *conten
       hashtable_delete(cache->index, removed_tail->path);
       free_entry(removed_tail);
     }
-    
+
     ///////////////////
     // 1) Allocate a new cache entry with the passed parameters.✅
     // cache.c --> alloc_entry(char *path, char *content_type, void *content, int content_length) 
@@ -177,10 +171,26 @@ void cache_put(struct cache *cache, char *path, char *content_type, void *conten
  */
 struct cache_entry *cache_get(struct cache *cache, char *path)
 {
+  struct cache_entry *found = hashtable_get(cache->index, path);
+
+  if (found == NULL) {
+    return NULL;
+  }
+  
+  dllist_move_to_head(cache, found);
+  return found;
+
     ///////////////////
-    // IMPLEMENT ME! //
+    // 1) Attempt to find the cache entry pointer by path in the hash table.✅
+    // hashtable.c --> void *hashtable_get(struct hashtable *ht, char *key) gets from the hash table a string key
+    // hashtable.c --> void *hashtable_get_bin(struct hashtable *ht, void *key, int key_size) gets from the hash table a binary key
+    // llist.c --> void *llist_find(struct llist *llist, void *data, int (*cmpfn)(void *, void *)) finds an element in the list
+    // seems that we get back the whole node aka "bin" from hashtable_get
+
+    // 2) If not found, return NULL.✅
+
+    // 3) Move the cache entry to the head of the doubly-linked list.✅
+
+    // 4)Return the cache entry pointer.✅
     ///////////////////
-    (void)cache;
-    (void)path;
-    return 0;
 }
