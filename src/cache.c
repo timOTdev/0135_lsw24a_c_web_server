@@ -9,9 +9,14 @@
  */
 struct cache_entry *alloc_entry(char *path, char *content_type, void *content, int content_length)
 {
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+  struct cache_entry *new_entry = malloc(sizeof(struct cache_entry));
+  
+  new_entry->path = path;
+  new_entry->content_type = content_type;
+  new_entry->content_length = content_length;
+  new_entry->content = content;
+
+  return new_entry;
 }
 
 /**
@@ -19,13 +24,14 @@ struct cache_entry *alloc_entry(char *path, char *content_type, void *content, i
  */
 void free_entry(struct cache_entry *entry)
 {
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+  free(entry->path);
+  free(entry->content_type);
+  free(entry->content);
+  free(entry);
 }
 
 /**
- * Insert a cache entry at the head of the linked list
+ * Insert a cache entry at the head of the doubly linked list
  */
 void dllist_insert_head(struct cache *cache, struct cache_entry *ce)
 {
@@ -42,7 +48,7 @@ void dllist_insert_head(struct cache *cache, struct cache_entry *ce)
 }
 
 /**
- * Move a cache entry to the head of the list
+ * Move a cache entry to the head of the doubly linked list
  */
 void dllist_move_to_head(struct cache *cache, struct cache_entry *ce)
 {
@@ -67,7 +73,7 @@ void dllist_move_to_head(struct cache *cache, struct cache_entry *ce)
 
 
 /**
- * Removes the tail from the list and returns it
+ * Removes the tail from the doubly linked list and returns it
  * 
  * NOTE: does not deallocate the tail
  */
@@ -94,6 +100,9 @@ struct cache *cache_create(int max_size, int hashsize)
     ///////////////////
     // IMPLEMENT ME! //
     ///////////////////
+    (void)max_size;
+    (void)hashsize;
+    return 0;
 }
 
 void cache_free(struct cache *cache)
@@ -122,8 +131,44 @@ void cache_free(struct cache *cache)
  */
 void cache_put(struct cache *cache, char *path, char *content_type, void *content, int content_length)
 {
+    struct cache_entry *new_entry = alloc_entry(path, content_type, content, content_length);
+
+    dllist_insert_head(cache, new_entry);
+    hashtable_put(cache->index, new_entry->path, new_entry);
+    cache->cur_size++;
+
+    while (cache->cur_size > cache->max_size) {
+      struct cache_entry *removed_tail = dllist_remove_tail(cache);
+      hashtable_delete(cache->index, removed_tail->path);
+      free_entry(removed_tail);
+    }
+    
     ///////////////////
-    // IMPLEMENT ME! //
+    // 1) Allocate a new cache entry with the passed parameters.✅
+    // cache.c --> alloc_entry(char *path, char *content_type, void *content, int content_length) 
+    
+    // 2) Insert the entry at the head of the doubly-linked list.✅
+    // cache.c --> void dllist_insert_head(struct cache *cache, struct cache_entry *ce)
+    
+    // 3) Store the entry in the hashtable as well, indexed by the entry's path.✅
+    // hashtable.c --> void *hashtable_put(struct hashtable *ht, char *key, void *data)
+    // insert path as the key, and the node as the data
+
+    // 4) Increment the current size of the cache.✅
+
+    // 5) If the cache size is greater than the max size:✅
+      // 5a)Remove the cache entry at the tail of the linked list.✅
+      // cache.c --> struct cache_entry *dllist_remove_tail(struct cache *cache)
+      // does not deallocate the tail
+      
+      // 5b)Remove that same entry from the hashtable, using the entry's path and the hashtable_delete function.✅
+      // hashtable.c --> void *hashtable_delete(struct hashtable *ht, char *key)
+
+      // 5c)Free the cache entry.✅
+      // cache.c --> void free_entry(struct cache_entry *entry)
+
+      // 5d)Ensure the size counter for the number of entries in the cache is correct.✅
+      // built in decrement to cur_size in dllist_remove_tail()
     ///////////////////
 }
 
@@ -135,4 +180,7 @@ struct cache_entry *cache_get(struct cache *cache, char *path)
     ///////////////////
     // IMPLEMENT ME! //
     ///////////////////
+    (void)cache;
+    (void)path;
+    return 0;
 }
