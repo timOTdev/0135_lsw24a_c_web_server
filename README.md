@@ -93,12 +93,12 @@ struct htent {
 - `void *llist_append(struct llist *llist, void *data)` appends to the end of a list
 - cmpfn should return 0 if the comparison to this node's data is equal
 - `void *llist_delete(struct llist *llist, void *data, int (*cmpfn)(void *, void *))` delete an element in the list
+- cmpfn should return 0 if the comparison to this node's data is equal
+- does *not* free the data--it merely returns a pointer to it
 
 - `void *llist_find(struct llist *llist, void *data, int (*cmpfn)(void *, void *))` find an element in the list
 - `void *llist_head(struct llist *llist)` returns the first element in a list
 - `void *llist_tail(struct llist *llist)` returns the last element in a list
-- cmpfn should return 0 if the comparison to this node's data is equal
-- does *not* free the data--it merely returns a pointer to it
 
 - `void **llist_array_get(struct llist *llist)` allocates and returns a new NULL-terminated array of pointers to data elements in the list.
 - `void llist_array_free(void **a)` Free an array allocated with llist_array_get()
