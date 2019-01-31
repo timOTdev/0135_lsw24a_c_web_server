@@ -146,21 +146,28 @@ void get_file(int fd, struct cache *cache, char *request_path)
   char path[1024];
   struct file_data *filedata; // buffer, type from file.c
   char *mime_type; // type from from mime.c
+  struct cache_entry *cache_check;
 
   sprintf(path, "%s%s", SERVER_ROOT, request_path); // parse the file path
 
-  filedata = file_load(path); // load the file into struct buffer
-  if (filedata == NULL) { // check if file was loaded properly
-      resp_404(fd);
-      printf("get_file() -> Cannot find file.\n");
-      return;
+  cache_check = cache_get(cache, request_path); // runs the cache check, returns struct cache_entry
+  if (cache_check != NULL) {
+    send_response(fd, "HTTP/1.1 200 OK", cache_check->content_type, cache_check->content, cache_check->content_length);
   }
+  else {
+    filedata = file_load(path); // load the file into struct buffer
+    if (filedata == NULL) { // check if file was loaded properly
+        resp_404(fd);
+        printf("get_file() -> Cannot find file.\n");
+        return;
+    }
 
-  mime_type = mime_type_get(path);
+    mime_type = mime_type_get(path);
 
-  printf("get_file() -> %d, %s, %s, %s,%d", fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size);
-  send_response(fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size); // send the buffer
-  file_free(filedata); // file_load had built in malloc
+    printf("get_file() -> %d, %s, %s, %s,%d", fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size);
+    send_response(fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size); // send the buffer
+    file_free(filedata); // file_load had built in malloc
+  }
 }
 
 /**
