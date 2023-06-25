@@ -1,4 +1,6 @@
-# A Simple Web Server in C
+# 0135_lsw24a_c_web_server
+
+## A Simple Web Server in C
 
 In this project, we'll finish the implementation of a web server in C.
 
